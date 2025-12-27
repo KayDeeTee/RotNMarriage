@@ -80,6 +80,12 @@ public class LuaContext
     public float vibe_duration = 0;
     public List<float> vibe_times = new List<float>();
 
+    // Get Rating / Mult
+    public int GetRatingMultCount(int rating, int mult) //0 = miss, 1 = ok, 4 =perfect
+    {
+        return RRStageControllerPatch.instance._stageInputRecord.GetNumInputsForRatingAndMultiplier( (Shared.InputRating)rating, mult );
+    }
+
     //
     //  Functions for getting references to unity components
     //
