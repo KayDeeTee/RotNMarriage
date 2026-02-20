@@ -4,9 +4,10 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>Wife Plugin</AssemblyName>
     <Product>RotN WIFE</Product>
-    <Version>0.1.0</Version>
+    <Version>1.0.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
+    <nullable>enable</nullable>
     <RestoreAdditionalProjectSources>
       https://api.nuget.org/v3/index.json;
       https://nuget.bepinex.dev/v3/index.json;
@@ -31,6 +32,11 @@
       <HintPath>lib/RiftReadable.dll</HintPath>
     </Reference>
   </ItemGroup>
+<ItemGroup>
+    <Reference Include="RiftOfTheNecroManager">
+      <HintPath>lib/RiftOfTheNecroManager.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="BugSplat">
       <HintPath>lib/BugSplat.Unity.Runtime.dll</HintPath>
@@ -44,26 +50,6 @@
       <ItemGroup>
     <Reference Include="MonoPooling">
       <HintPath>lib/TicToc.ObjectPooling.Runtime.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-    <ItemGroup>
-    <Reference Include="Unity.InputSystem">
-      <HintPath>lib/Unity.InputSystem.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Unity.Addressables">
-      <HintPath>lib/Unity.Addressables.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="FMODUnity">
-      <HintPath>lib/FMODUnity.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-    <ItemGroup>
-    <Reference Include="Unity.ResourceManager">
-      <HintPath>lib/Unity.ResourceManager.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -84,11 +70,6 @@
   <ItemGroup>
     <Reference Include="MoonSharp">
       <HintPath>lib/MoonSharp.Interpreter.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Coffee.SoftMaskForUGUI">
-      <HintPath>lib/Coffee.SoftMaskForUGUI.dll</HintPath>
     </Reference>
   </ItemGroup>
   

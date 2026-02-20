@@ -1,25 +1,22 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using HarmonyLib;
 using RhythmRift;
+using RiftOfTheNecroManager;
 using Shared.RhythmEngine;
 using Shared.SceneLoading.Payloads;
-using UIPlugin;
-using UnityEngine;
 
 namespace WIFEPlugin;
 
+[HarmonyPatch(typeof(RRStageController))]
 internal static class RRStageControllerPatch
 {
-    public static RRStageController instance;
+    public static RRStageController instance = null!; // TODO: fix this null error
 
-    public static WifeOSD wife;
+    public static WifeOSD? wife = null;
 
     
 
-    [HarmonyPatch(typeof(RRStageController), "UnpackScenePayload")]
+    [HarmonyPatch(nameof(RRStageController.UnpackScenePayload))]
     [HarmonyPostfix]
     public static void UnpackScene(RRStageController __instance, ScenePayload currentScenePayload)
     {
@@ -27,19 +24,19 @@ internal static class RRStageControllerPatch
 
         LuaManager.Reset();
 
-        string lua_path = Path.GetDirectoryName( WIFEPlugin.instance.Info.Location ) + "\\husband.lua";
+        string lua_path = Path.Combine(Path.GetDirectoryName(PluginData.Info.Location), "husband.lua");
         if( File.Exists( lua_path ))
         {
-            WIFEPlugin.Logger.LogInfo( "loading lua" );
+            Log.Info( "loading lua" );
             LuaManager.Load( [lua_path] );
         } else
         {
-             WIFEPlugin.Logger.LogInfo( "can't find husband.lua" );
+            Log.Info( "can't find husband.lua" );
         }
        
     }
 
-    [HarmonyPatch(typeof( RRStageController ), "UploadScoreToLeaderboardAndRefreshUi")]
+    [HarmonyPatch(nameof(RRStageController.UploadScoreToLeaderboardAndRefreshUi))]
     [HarmonyPrefix]
     public static bool Finished()
     {
@@ -48,18 +45,18 @@ internal static class RRStageControllerPatch
     }
     
 
-    [HarmonyPatch(typeof(RRStageController), "BeginPlay")]
+    [HarmonyPatch(nameof(RRStageController.BeginPlay))]
     [HarmonyPostfix]
     public static void Begin()
     {
-        wife = new WifeOSD(instance.transform);  
+        wife = new WifeOSD(instance.transform);
         WifeOSD.Reset();
               
     }
 
-    [HarmonyPatch(typeof(RRStageController), "Update")]
+    [HarmonyPatch(nameof(RRStageController.Update))]
     [HarmonyPostfix]
-    public static void OnUpdate(RRStageController __instance)       
+    public static void OnUpdate(RRStageController __instance)
     {
         bool paused = __instance._isPaused;
         FmodTimeCapsule fmod = __instance.BeatmapPlayer.FmodTimeCapsule;
@@ -73,14 +70,14 @@ internal static class RRStageControllerPatch
             ctx.currentHealth = __instance.PlayerHealth;
             ctx.currentVibe = __instance._currentVibePower;
 
-            ctx.current_combo = RRStageControllerPatch.instance._stageInputRecord.CurrentComboCount;
-            ctx.max_combo = RRStageControllerPatch.instance._stageInputRecord.MaxComboCount;
+            ctx.current_combo = instance._stageInputRecord.CurrentComboCount;
+            ctx.max_combo = instance._stageInputRecord.MaxComboCount;
 
-            ctx.vibe_activations = RRStageControllerPatch.instance._stageInputRecord.NumTimesVibePowerActivated;
-            ctx.vibe_chains_hit = RRStageControllerPatch.instance._stageInputRecord.NumVibeChainsHit;
-            ctx.vibe_chains_missed = RRStageControllerPatch.instance._stageInputRecord.NumVibeChainsMissed;
-            ctx.vibe_duration = RRStageControllerPatch.instance._stageInputRecord.NumSecondsVibePowerWasActive;
-            ctx.vibe_times = RRStageControllerPatch.instance._stageInputRecord._vibePowerActivationBeatNumbers;
+            ctx.vibe_activations = instance._stageInputRecord.NumTimesVibePowerActivated;
+            ctx.vibe_chains_hit = instance._stageInputRecord.NumVibeChainsHit;
+            ctx.vibe_chains_missed = instance._stageInputRecord.NumVibeChainsMissed;
+            ctx.vibe_duration = instance._stageInputRecord.NumSecondsVibePowerWasActive;
+            ctx.vibe_times = instance._stageInputRecord._vibePowerActivationBeatNumbers;
 
             if (ctx.justCreated)
             {
@@ -90,7 +87,6 @@ internal static class RRStageControllerPatch
             ctx.OnFrame.Invoke();
         }
 
-        wife.Update(0);
+        wife?.Update(0);
     }
-
 }
