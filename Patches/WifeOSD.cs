@@ -44,7 +44,7 @@ public class WifeOSD
     public static string level_id = "";
     public static string diff = "";
 
-    public static void Reset()
+    public static async void Reset()
     {
         inputCounts = new Dictionary<int, int>();
         inputCountsEarly = new Dictionary<int, int>();
@@ -68,28 +68,27 @@ public class WifeOSD
 
         Log.Info(level_id);
         Log.Info(diff);
+        UpdateLua();
 
-        string scores_path = Path.Combine(Path.GetDirectoryName(PluginData.Info.Location), "scores");
+        string scores_path = Path.Combine(PluginData.DataPath, "scores");
         string path = level_id + "_" + diff;
         string full_path = Path.Combine(scores_path, path);
 
         if( !Directory.Exists(scores_path) ) Directory.CreateDirectory(scores_path);
 
-        if( File.Exists(full_path))
-        {
+        if(File.Exists(full_path)) {
             Log.Info("Reading file for previous score");
-            string prev = File.ReadAllText( full_path );
-            string[] lines = prev.Split("\n");
-            for( int i = 0; i < lines.Length; i++)
-            {
+            string[] lines = await File.ReadAllLinesAsync(full_path);
+            for(int i = 0; i < lines.Length; i++) {
                 string[] sub_line = lines[i].Split("\t");
-                float beat = float.Parse(sub_line[0]);
-                int score = int.Parse(sub_line[1]);
-                Log.Info($"{beat} -> {score}");
-                prevScore.Add( new ScoreHistory( beat, score ) );
+                if(sub_line.Length == 2 && float.TryParse(sub_line[0], out float beat) && int.TryParse(sub_line[1], out int score) ) {
+                    prevScore.Add( new ScoreHistory( beat, score ) );
+                } else {
+                    Log.Warning($"Line {i} of previous score file is malformed: {lines[i]}");
+                }
             }
+            UpdateLua();
         }
-        UpdateLua();
     }
 
     public static void Finished()
@@ -119,7 +118,7 @@ public class WifeOSD
                 int score = s.Score;
                 text_output += $"{beat}\t{score}\n";
             }
-            string scores_path = Path.Combine(Path.GetDirectoryName(PluginData.Info.Location), "scores");
+            string scores_path = Path.Combine(PluginData.DataPath, "scores");
             string path = level_id + "_" + diff;
             string full_path = Path.Combine(scores_path, path);
             Log.Info("Checking folder exists...");

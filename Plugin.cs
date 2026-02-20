@@ -15,6 +15,5 @@ public class WIFEPlugin : RiftPlugin {
     protected override void OnInit() {
         base.OnInit();
         LuaManager.InitUserdata();
-        Log.Message("hi");
     }
 }

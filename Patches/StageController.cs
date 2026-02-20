@@ -25,15 +25,18 @@ internal static class RRStageControllerPatch
         LuaManager.Reset();
 
         string lua_path = Path.Combine(Path.GetDirectoryName(PluginData.Info.Location), "husband.lua");
-        if( File.Exists( lua_path ))
-        {
-            Log.Info( "loading lua" );
-            LuaManager.Load( [lua_path] );
-        } else
-        {
-            Log.Info( "can't find husband.lua" );
+        if(File.Exists(lua_path)) {
+            Log.Info("loading lua");
+            LuaManager.Load([lua_path]);
+        } else {
+            lua_path = Path.Combine(PluginData.DataPath, "husband.lua");
+            if(File.Exists(lua_path)) {
+                Log.Info("loading lua from backup path");
+                LuaManager.Load([lua_path]);
+            } else {
+                Log.Info("can't find husband.lua");
+            }
         }
-       
     }
 
     [HarmonyPatch(nameof(RRStageController.UploadScoreToLeaderboardAndRefreshUi))]
