@@ -1,15 +1,11 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using RiftOfTheNecroManager;
 using Shared;
 using Shared.RhythmEngine;
-using Shared.Utilities;
 using TMPro;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
-using UnityEngine.UI;
 
 namespace WIFEPlugin;
 
@@ -26,33 +22,33 @@ public struct ScoreHistory
 
 public class WifeOSD
 {
-    public static Dictionary<int, int> inputCounts;
+    public static Dictionary<int, int> inputCounts = [];
 
-    public static Dictionary<int, int> inputCountsEarly;
+    public static Dictionary<int, int> inputCountsEarly = [];
 
-    public static Dictionary<int, int> inputCountsLate;
+    public static Dictionary<int, int> inputCountsLate = [];
     public static float wife_score;
     public static float wife_max;
 
     public static float rolling_average = 0.0f;
     public static int rolling_count = 0;
 
-    public static List<ScoreHistory> score;
-    public static List<ScoreHistory> prevScore; 
+    public static List<ScoreHistory> score = [];
+    public static List<ScoreHistory> prevScore = [];
 
     public static int prev_index = -1;
 
     public static int current_score = 0;
     public static int prev_current_score = 0;
 
-    public static string level_id;
-    public static string diff;
+    public static string level_id = "";
+    public static string diff = "";
 
-    public static void Reset()
+    public static async void Reset()
     {
-        inputCounts = new System.Collections.Generic.Dictionary<int, int>();
-        inputCountsEarly = new System.Collections.Generic.Dictionary<int, int>();
-        inputCountsLate = new System.Collections.Generic.Dictionary<int, int>();
+        inputCounts = new Dictionary<int, int>();
+        inputCountsEarly = new Dictionary<int, int>();
+        inputCountsLate = new Dictionary<int, int>();
         wife_max = 0;
         wife_score = 0;
         rolling_average = 0.0f;
@@ -65,57 +61,56 @@ public class WifeOSD
         score = new List<ScoreHistory>();
         prevScore = new List<ScoreHistory>();
 
-        WIFEPlugin.Logger.LogInfo("Getting level info...");
+        Log.Info("Getting level info...");
 
         level_id = RRStageControllerPatch.instance._levelId;
         diff = ((int)RRStageControllerPatch.instance._stageScenePayload.GetLevelDifficulty()).ToString();
 
-        WIFEPlugin.Logger.LogInfo(level_id);
-        WIFEPlugin.Logger.LogInfo(diff);
+        Log.Info(level_id);
+        Log.Info(diff);
+        UpdateLua();
 
-        string scores_path = Path.GetDirectoryName( WIFEPlugin.instance.Info.Location ) + "/scores/";
+        string scores_path = Path.Combine(PluginData.DataPath, "scores");
         string path = level_id + "_" + diff;
-        string full_path = scores_path + path;
+        string full_path = Path.Combine(scores_path, path);
 
         if( !Directory.Exists(scores_path) ) Directory.CreateDirectory(scores_path);
 
-        if( File.Exists(full_path))
-        {
-            WIFEPlugin.Logger.LogInfo("Reading file for previous score");
-            string prev = File.ReadAllText( full_path );
-            string[] lines = prev.Split("\n");
-            for( int i = 0; i < lines.Length; i++)
-            {
+        if(File.Exists(full_path)) {
+            Log.Info("Reading file for previous score");
+            string[] lines = await File.ReadAllLinesAsync(full_path);
+            for(int i = 0; i < lines.Length; i++) {
                 string[] sub_line = lines[i].Split("\t");
-                float beat = float.Parse(sub_line[0]);
-                int score = int.Parse(sub_line[1]);
-                WIFEPlugin.Logger.LogInfo($"{beat} -> {score}");
-                prevScore.Add( new ScoreHistory( beat, score ) );
+                if(sub_line.Length == 2 && float.TryParse(sub_line[0], out float beat) && int.TryParse(sub_line[1], out int score) ) {
+                    prevScore.Add( new ScoreHistory( beat, score ) );
+                } else {
+                    Log.Warning($"Line {i} of previous score file is malformed: {lines[i]}");
+                }
             }
+            UpdateLua();
         }
-        UpdateLua();
     }
 
     public static void Finished()
     {
-        WIFEPlugin.Logger.LogInfo("Finished song.");
+        Log.Info("Finished song.");
         int total_score = RRStageControllerPatch.instance._stageInputRecord.TotalScore;
         int prev_score = 0;
-        WIFEPlugin.Logger.LogInfo("Getting previous score...");
+        Log.Info("Getting previous score...");
         foreach( ScoreHistory sh in prevScore)
         {
             prev_score = sh.Score;
         }
-        WIFEPlugin.Logger.LogInfo($"Previous scores : {prev_score}");
+        Log.Info($"Previous scores : {prev_score}");
         if( total_score > prev_score)
         {
-            WIFEPlugin.Logger.LogInfo("Sorting score before saving.");
-            score.Sort( delegate(ScoreHistory a, ScoreHistory b) { 
+            Log.Info("Sorting score before saving.");
+            score.Sort( delegate(ScoreHistory a, ScoreHistory b) {
                 int cmp = a.TrueBeatNumber.CompareTo(b.TrueBeatNumber);
                 if( cmp == 0 ){ return a.Score.CompareTo(b.Score); }
-                return cmp; 
+                return cmp;
             } );
-            WIFEPlugin.Logger.LogInfo("Finished song with higher score, saving data to /scores/");
+            Log.Info("Finished song with higher score, saving data to /scores/");
             string text_output = "";
             foreach( ScoreHistory s in score )
             {
@@ -123,14 +118,14 @@ public class WifeOSD
                 int score = s.Score;
                 text_output += $"{beat}\t{score}\n";
             }
-            string scores_path = Path.GetDirectoryName( WIFEPlugin.instance.Info.Location ) + "/scores/";
+            string scores_path = Path.Combine(PluginData.DataPath, "scores");
             string path = level_id + "_" + diff;
-            string full_path = scores_path + path;
-            WIFEPlugin.Logger.LogInfo("Checking folder exists...");
+            string full_path = Path.Combine(scores_path, path);
+            Log.Info("Checking folder exists...");
             if( !Directory.Exists(scores_path) ) Directory.CreateDirectory(scores_path);
-            WIFEPlugin.Logger.LogInfo("Saving data...");
+            Log.Info("Saving data...");
             File.WriteAllText( full_path, text_output );
-            WIFEPlugin.Logger.LogInfo("Done!");
+            Log.Info("Done!");
         }
     }
 
@@ -171,7 +166,7 @@ public class WifeOSD
         TextObj.fontMaterial.SetFloat(ShaderUtilities.ID_FaceDilate, 0.5f);
 
         TextObj.text = "";
-        WIFEPlugin.Logger.LogInfo($"Created Text Obj for WIFE plugin");
+        Log.Info($"Created Text Obj for WIFE plugin");
 
         foreach (LuaContext ctx in LuaManager.luaContexts)
         {
@@ -181,7 +176,7 @@ public class WifeOSD
         InitUpdateLua();
     }
 
-    public static TextMeshProUGUI TextObj;
+    public static TextMeshProUGUI? TextObj;
     public bool requiresReordering = false;
 
     public void Update(float deltaTime)
@@ -286,11 +281,11 @@ public class WifeOSD
         if( percentage >= 0 ) return 5;
         return 6;
 
-        for( int i = 0; i < windows.Length; i++)
-        {
-            if( usecs < windows[i] ) return i;
-        }
-        return windows.Length;
+        // for( int i = 0; i < windows.Length; i++)
+        // {
+        //     if( usecs < windows[i] ) return i;
+        // }
+        // return windows.Length;
     }
     public static string[] names = { "CRIT", "FLAW", "PERF", "GREAT", "GOOD", "OKAY", "MISS", "OVER" };
 
@@ -392,7 +387,7 @@ public class WifeOSD
             ctx.vibe_duration = 0;
             ctx.vibe_times =[];
 
-            //ctx.text_obj = TextObj;
+            ctx.text_obj = TextObj;
 
             ctx.OnChange.Invoke();
 
@@ -434,7 +429,7 @@ public class WifeOSD
             ctx.vibe_duration = RRStageControllerPatch.instance._stageInputRecord.NumSecondsVibePowerWasActive;
             ctx.vibe_times = RRStageControllerPatch.instance._stageInputRecord._vibePowerActivationBeatNumbers;
 
-            //ctx.text_obj = TextObj;
+            ctx.text_obj = TextObj;
 
             ctx.OnChange.Invoke();
         }

@@ -3,10 +3,8 @@ using RhythmRift;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using RhythmRift.Enemies;
 using System.Collections.Generic;
 using RhythmRift.Traps;
-using static RhythmRift.Traps.RRTrapController;
 
 namespace WIFEPlugin;
 
@@ -18,11 +16,11 @@ public class LuaContext
     [MoonSharpHidden]
     public Script script;
     [MoonSharpHidden]
-    public RRStageController stageController;
+    public RRStageController? stageController;
     [MoonSharpHidden]
-    public RREnemyController enemyController;
+    public RREnemyController? enemyController;
     [MoonSharpHidden]
-    public RRTrapController trapController;
+    public RRTrapController? trapController;
     [MoonSharpHidden]
     public LuaContext(Script lua)
     {
@@ -47,7 +45,7 @@ public class LuaContext
     public bool inVibe = false;
     public bool justCreated = true;
 
-    public TextMeshProUGUI text_obj;
+    public TextMeshProUGUI? text_obj;
     public bool text_init = true;
 
     public int early_crit = 0;
@@ -89,15 +87,15 @@ public class LuaContext
     //
     //  Functions for getting references to unity components
     //
-    public Transform GetTransform(string path)
+    public Transform? GetTransform(string path)
     {
-        return stageController.transform.Find(path);
+        return stageController?.transform.Find(path);
     }
-    public TextMeshProUGUI GetTmpro(string path) // weird capitalization is required so that it can be called as get_tmpro from lua
+    public TextMeshProUGUI? GetTmpro(string path) // weird capitalization is required so that it can be called as get_tmpro from lua
     {
         return GetTransform(path)?.GetComponent<TextMeshProUGUI>();
     }
-    public Image GetImage(string path)
+    public Image? GetImage(string path)
     {
         return GetTransform(path)?.GetComponent<Image>();
     }

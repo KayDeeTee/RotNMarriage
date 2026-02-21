@@ -1,13 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using MoonSharp.Interpreter;
 using MoonSharp.Interpreter.Loaders;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using RhythmRift.Enemies;
-using RhythmRift;
 
 namespace WIFEPlugin;
 
@@ -27,14 +24,14 @@ public static class LuaManager
     }
 
     //
-    //   
+    //
     //
     public static Dictionary<string, Sprite> Sprites = new Dictionary<string, Sprite>();
     public static List<Script> scripts = new List<Script>();
     public static List<LuaContext> luaContexts = new List<LuaContext>();
 
     //
-    //  Reset and load all lua files found at song folder 
+    //  Reset and load all lua files found at song folder
     //
     public static void Reset()
     {
@@ -78,12 +75,12 @@ public static class LuaManager
         catch (ScriptRuntimeException ex)
         {
             string errorMessage = string.Format("LUA ScriptRuntimeEx: {0}", ex.DecoratedMessage);
-            WIFEPlugin.Logger.LogError(errorMessage);
+            RiftOfTheNecroManager.Log.Error(errorMessage);
         }
         catch (SyntaxErrorException ex)
         {
             string errorMessage = string.Format("LUA SyntaxErrorEx: {0}", ex.DecoratedMessage);
-            WIFEPlugin.Logger.LogError(errorMessage);
+            RiftOfTheNecroManager.Log.Error(errorMessage);
         }
     }
     public static void Load(string[] paths)
@@ -139,6 +136,6 @@ public static class LuaManager
     //
     private static void Log(string message)
     {
-        WIFEPlugin.Logger.LogInfo(message);
+        RiftOfTheNecroManager.Log.Info(message);
     }
 }
