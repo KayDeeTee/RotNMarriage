@@ -81,13 +81,17 @@ internal static class RRStageControllerPatch
             ctx.vibe_chains_missed = instance._stageInputRecord.NumVibeChainsMissed;
             ctx.vibe_duration = instance._stageInputRecord.NumSecondsVibePowerWasActive;
             ctx.vibe_times = instance._stageInputRecord._vibePowerActivationBeatNumbers;
-
-            if (ctx.justCreated)
+            try {
+                if (ctx.justCreated)
+                {
+                    ctx.justCreated = false;
+                    ctx.OnPostInit.Invoke();
+                }
+                ctx.OnFrame.Invoke();
+            } catch
             {
-                ctx.justCreated = false;
-                ctx.OnPostInit.Invoke();
+                Log.Error("error invoking lua");
             }
-            ctx.OnFrame.Invoke();
         }
 
         wife?.Update(0);
