@@ -10,7 +10,7 @@ namespace WIFEPlugin;
 public class WIFEPlugin : RiftPlugin {
     public const string GUID = "rotn.katie.wife.wife_mod";
     public const string NAME = "WIFE Mod";
-    public const string VERSION = "1.0.0";
+    public const string VERSION = "1.0.1";
     
     protected override void OnInit() {
         base.OnInit();
