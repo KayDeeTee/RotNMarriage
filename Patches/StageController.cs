@@ -62,7 +62,7 @@ internal static class RRStageControllerPatch
     public static void OnUpdate(RRStageController __instance)
     {
         bool paused = __instance._isPaused;
-        FmodTimeCapsule fmod = __instance.BeatmapPlayer.FmodTimeCapsule;
+        FmodTimeCapsule fmod = __instance.TimelineMapPlayer.FmodTimeCapsule;
         foreach (LuaContext ctx in LuaManager.luaContexts)
         {
             ctx.previousTime = ctx.currentTime;
@@ -71,7 +71,7 @@ internal static class RRStageControllerPatch
             ctx.currentBeat = fmod.TrueBeatNumber;
             ctx.inVibe = __instance._isVibePowerActive;
             ctx.currentHealth = __instance.PlayerHealth;
-            ctx.currentVibe = __instance._currentVibePower;
+            ctx.currentVibe = __instance.CurrentVibePower;
 
             ctx.current_combo = instance._stageInputRecord.CurrentComboCount;
             ctx.max_combo = instance._stageInputRecord.MaxComboCount;

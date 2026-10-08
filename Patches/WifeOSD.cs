@@ -181,7 +181,7 @@ public class WifeOSD
 
     public void Update(float deltaTime)
     {
-        UpdateScoreProgress( RRStageControllerPatch.instance.BeatmapPlayer.FmodTimeCapsule.TrueBeatNumber - 0.5f  );
+        UpdateScoreProgress( RRStageControllerPatch.instance.TimelineMapPlayer.FmodTimeCapsule.TrueBeatNumber - 0.5f  );
         return;
     }
     
@@ -271,7 +271,7 @@ public class WifeOSD
     public static int RatingIndex( float usecs )
     {
         //emulate the inaccuracies the game has due to rounding
-        float hit_window = RRStageControllerPatch.instance.BeatmapPlayer.ActiveInputRatingsDefinition.AfterBeatHitWindow;
+        float hit_window = RRStageControllerPatch.instance.TimelineMapPlayer.ActiveInputRatingsDefinition.AfterBeatHitWindow;
         int percentage = (int)((1.0 -  math.abs(usecs / usec) / hit_window) * 100);
         if( percentage >= 98 ) return 0;
         if( percentage >= 90 ) return 1;
