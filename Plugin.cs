@@ -6,11 +6,11 @@ namespace WIFEPlugin;
 
 
 [BepInPlugin(GUID, NAME, VERSION)]
-[NecroManagerInfo(menuNameOverride: NAME, customEventsNameOverride: "WIFE")]
+[NecroManagerInfo(menuNameOverride: NAME, customEventsNameOverride: "WIFE", isBeta: true)]
 public class WIFEPlugin : RiftPlugin {
     public const string GUID = "rotn.katie.wife.wife_mod";
     public const string NAME = "WIFE Mod";
-    public const string VERSION = "1.0.1";
+    public const string VERSION = "1.1.0";
     
     protected override void OnInit() {
         base.OnInit();
